@@ -734,6 +734,3 @@ The final result was a fully encrypted Windows installation with **UEFI, TPM 2.0
 **The key lesson:**
 **Don't replace hardware just because the symptoms look like hardware failure. Establish the timeline, collect the evidence, correlate the events, and let the system tell you what actually happened.**
 
----
-
-← [Back to VT Writeups](../README.md)

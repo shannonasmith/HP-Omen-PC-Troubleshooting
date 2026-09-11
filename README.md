@@ -390,6 +390,31 @@ Since the recovery, the affected Windows Hello PIN has needed to be reset more o
 
 This hasn't been confirmed with the same rigor as the primary incident yet, and is being tracked as an open item.
 
+### Next Troubleshooting Step
+
+The plan is to capture evidence immediately after the *next* firmware/BIOS update, before doing anything else — that's the window where it's freshest:
+
+1. **Check current TPM state** in an elevated PowerShell session:
+   ```powershell
+   Get-Tpm
+   ```
+   Specifically `TpmPresent`, `TpmReady`, and `TpmOwned` — if ownership looks like it was recently re-established rather than continuous since setup, that's a signal worth noting.
+
+2. **Check the TPM-specific event log** for clear/ownership-change events:
+   ```text
+   Event Viewer
+   └── Applications and Services Logs
+       └── Microsoft
+           └── Windows
+               └── TPM-WMI
+                   └── Operational
+   ```
+   Looking for events indicating the TPM was cleared, reset, or re-initialized, and whether the timestamp lines up with the firmware update and/or the next PIN-reset prompt.
+
+3. **Cross-reference the timestamp** against the same `BitLocker-API Management` log already used above — if a TPM clear event and a new Event 898/793 pair share a timestamp, that's strong confirmation this is one root cause showing up as two symptoms, not two separate problems.
+
+If confirmed, this would extend Lesson #1 (suspend BitLocker before firmware changes) to also cover Windows Hello — either treating a PIN reset as an expected side effect of any future update on this system, or looking into backing up/re-provisioning the Hello credential as part of the same pre-update routine.
+
 ---
 
 ## 💡 Skills Demonstrated

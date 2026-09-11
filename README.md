@@ -34,23 +34,28 @@ The investigation demonstrated that the original BitLocker lockout was a securit
 
 The BIOS update was located and downloaded through HP's own Software and Drivers portal.
 
-[![](images/IMG_5852.JPEG)](images/IMG_5852.JPEG)
+<a href="images/IMG_5852.JPEG"><img src="images/IMG_5852.JPEG" width="800" alt="HP Software and Drivers page for the OMEN 45L"></a>
+
 *HP's Software and Drivers page for the OMEN 45L Gaming DT GT22-1167c PC.*
 
-[![](images/IMG_5853.JPEG)](images/IMG_5853.JPEG)
+<a href="images/IMG_5853.JPEG"><img src="images/IMG_5853.JPEG" width="800" alt="HP Download and Install Assistant downloading BIOS update"></a>
+
 *HP Download and Install Assistant downloading an HP Consumer Desktop PC BIOS Update (SSID 8A98), alongside AMD and NVIDIA driver updates.*
 
 A system information comparison before and after confirms the update actually changed the platform's firmware version:
 
-| | Before | After |
-|---|---|---|
-| BIOS Version/Date | AMI F.12, 8/29/2023 | AMI F.20, 4/20/2026 |
-
-[![](images/IMG_5691.JPEG)](images/IMG_5691.JPEG)
-*System information prior to the update — BIOS F.12, 8/29/2023.*
-
-[![](images/IMG_5855.JPEG)](images/IMG_5855.JPEG)
-*System information after the update — BIOS F.20, 4/20/2026.*
+<table>
+<tr>
+<td align="center" width="50%">
+<a href="images/IMG_5691.JPEG"><img src="images/IMG_5691.JPEG" width="380" alt="System info before update"></a>
+<br><em>Before — BIOS F.12, 8/29/2023</em>
+</td>
+<td align="center" width="50%">
+<a href="images/IMG_5855.JPEG"><img src="images/IMG_5855.JPEG" width="380" alt="System info after update"></a>
+<br><em>After — BIOS F.20, 4/20/2026</em>
+</td>
+</tr>
+</table>
 
 This is the concrete triggering event referenced throughout the rest of this write-up: not a hypothetical "a firmware update happened," but a documented, dated BIOS version change immediately preceding the failure.
 
@@ -89,7 +94,8 @@ The objectives of this recovery were to:
 
 ### 📷 Physical System
 
-[![](images/IMG_5689.JPEG)](images/IMG_5689.JPEG)
+<a href="images/IMG_5689.JPEG"><img src="images/IMG_5689.JPEG" width="800" alt="Internal view of the HP Omen 45L"></a>
+
 *Internal view of the HP Omen 45L during the troubleshooting process.*
 
 ---
@@ -102,7 +108,8 @@ The system exhibited several distinct symptoms during the recovery process.
 
 The initial boot attempt produced a UEFI Secure Boot violation indicating that a boot component had an **invalid signature**.
 
-[![](images/Picture1.jpg)](images/Picture1.jpg)
+<a href="images/Picture1.jpg"><img src="images/Picture1.jpg" width="800" alt="Secure Boot Violation screen"></a>
+
 *Secure Boot Violation — "Invalid signature detected. Check Secure Boot Policy in Setup."*
 
 This immediately suggested that the firmware no longer trusted something in the Windows boot chain.
@@ -119,7 +126,8 @@ The recovery key was not immediately available.
 
 The recovery screen also provided additional diagnostic information that became important later in the investigation.
 
-[![](images/IMG_5686.JPEG)](images/IMG_5686.JPEG)
+<a href="images/IMG_5686.JPEG"><img src="images/IMG_5686.JPEG" width="800" alt="BitLocker Recovery additional information screen"></a>
+
 *BitLocker Recovery — Additional recovery information showing `E_FVE_SECURE_BOOT_DISABLED` and a PCR 7 mismatch.*
 
 The screen reported:
@@ -275,7 +283,8 @@ After restoring the firmware security configuration, BitLocker status was checke
 Get-BitLockerVolume -MountPoint "C:"
 ```
 
-[![](images/IMG_5690.JPEG)](images/IMG_5690.JPEG)
+<a href="images/IMG_5690.JPEG"><img src="images/IMG_5690.JPEG" width="800" alt="Get-BitLockerVolume PowerShell output"></a>
+
 *`Get-BitLockerVolume` output confirming the volume is FullyEncrypted with Tpm and RecoveryPassword key protectors, and Protection Status: On.*
 
 The resulting state confirmed that the Windows volume was:
@@ -490,7 +499,8 @@ USB Boot was disabled.
 
 ### 📷 OMEN Firmware Evidence
 
-[![](images/IMG_5687.JPEG)](images/IMG_5687.JPEG)
+<a href="images/IMG_5687.JPEG"><img src="images/IMG_5687.JPEG" width="800" alt="OMEN Setup Utility system log"></a>
+
 *OMEN Setup Utility system log showing firmware-level startup information, reviewed during the POST-loop investigation.*
 
 This provided additional evidence that the troubleshooting process was occurring at the firmware/POST layer rather than solely within Windows.

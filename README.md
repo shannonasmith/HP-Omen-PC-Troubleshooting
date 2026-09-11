@@ -1,11 +1,15 @@
-## 🔐 HP Omen Secure Boot & BitLocker Recovery
+<div align="center">
 
-### Windows UEFI / TPM Troubleshooting & Root Cause Analysis
+# 🔐 HP Omen Secure Boot & BitLocker Recovery
+
+## Windows UEFI / TPM Troubleshooting & Root Cause Analysis
 
 ![Windows 11](https://img.shields.io/badge/Windows%2011-0078D4?style=for-the-badge&logo=windows&logoColor=white)
 ![UEFI](https://img.shields.io/badge/UEFI-Secure%20Boot-00599C?style=for-the-badge)
 ![BitLocker](https://img.shields.io/badge/BitLocker-TPM%202.0-107C10?style=for-the-badge&logo=microsoft)
 ![Troubleshooting](https://img.shields.io/badge/Hardware%20%26%20OS-Troubleshooting-6A1B9A?style=for-the-badge)
+
+</div>
 
 ---
 
@@ -28,28 +32,25 @@ Rather than immediately replacing hardware or assuming a failing CMOS battery, t
 
 The BIOS update was located and downloaded through HP's own Software and Drivers portal.
 
-<a href="images/IMG_5852.JPEG"><img src="images/IMG_5852.JPEG" width="800" alt="HP Software and Drivers page for the OMEN 45L"></a>
+<div align="center">
+<img src="images/IMG_5852.JPEG" width="800">
+</div>
 
 *HP's Software and Drivers page for the OMEN 45L Gaming DT GT22-1167c PC.*
 
-<a href="images/IMG_5853.JPEG"><img src="images/IMG_5853.JPEG" width="800" alt="HP Download and Install Assistant downloading BIOS update"></a>
+<div align="center">
+<img src="images/IMG_5853.JPEG" width="800">
+</div>
 
 *HP Download and Install Assistant downloading an HP Consumer Desktop PC BIOS Update (SSID 8A98), alongside AMD and NVIDIA driver updates.*
 
 A system information comparison before and after confirms the update actually changed the platform's firmware version:
 
-<table>
-<tr>
-<td align="center" width="50%">
-<a href="images/IMG_5691.JPEG"><img src="images/IMG_5691.JPEG" width="380" alt="System info before update"></a>
-<br><em>Before — BIOS F.12, 8/29/2023</em>
-</td>
-<td align="center" width="50%">
-<a href="images/IMG_5855.JPEG"><img src="images/IMG_5855.JPEG" width="380" alt="System info after update"></a>
-<br><em>After — BIOS F.20, 4/20/2026</em>
-</td>
-</tr>
-</table>
+<div align="center">
+<img src="images/IMG_5691.JPEG" width="380"> <img src="images/IMG_5855.JPEG" width="380">
+</div>
+
+*System information before the update — BIOS F.12, 8/29/2023 · System information after the update — BIOS F.20, 4/20/2026*
 
 This is the concrete triggering event referenced throughout the rest of this write-up: a documented, dated BIOS version change immediately preceding the failure.
 
@@ -81,7 +82,9 @@ This is the concrete triggering event referenced throughout the rest of this wri
 
 ### 📷 Physical System
 
-<a href="images/IMG_5689.JPEG"><img src="images/IMG_5689.JPEG" width="800" alt="Internal view of the HP Omen 45L"></a>
+<div align="center">
+<img src="images/IMG_5689.JPEG" width="800">
+</div>
 
 *Internal view of the HP Omen 45L during the troubleshooting process.*
 
@@ -93,7 +96,9 @@ This is the concrete triggering event referenced throughout the rest of this wri
 
 The initial boot attempt produced a UEFI Secure Boot violation indicating that a boot component had an **invalid signature**.
 
-<a href="images/Picture1.jpg"><img src="images/Picture1.jpg" width="800" alt="Secure Boot Violation screen"></a>
+<div align="center">
+<img src="images/Picture1.jpg" width="800">
+</div>
 
 *Secure Boot Violation — "Invalid signature detected. Check Secure Boot Policy in Setup."*
 
@@ -105,7 +110,9 @@ There was no reason at this stage to assume the operating system itself was dama
 
 A subsequent boot attempt reached the BitLocker recovery screen and requested the system's **48-digit recovery key**, which was not immediately available. The recovery screen also provided diagnostic information that became important later in the investigation.
 
-<a href="images/IMG_5686.JPEG"><img src="images/IMG_5686.JPEG" width="800" alt="BitLocker Recovery additional information screen"></a>
+<div align="center">
+<img src="images/IMG_5686.JPEG" width="800">
+</div>
 
 *BitLocker Recovery — Additional recovery information showing `E_FVE_SECURE_BOOT_DISABLED` and a PCR 7 mismatch.*
 
@@ -163,15 +170,15 @@ Notably, when this issue was described to a colleague with three years of profes
 
 ---
 
-# 🛠️ Investigation & Recovery
+## 🛠️ Investigation & Recovery
 
-## 🔓 Step 1 — Bypass Secure Boot
+### 🔓 Step 1 — Bypass Secure Boot
 
 The first objective was simply to regain a boot path into the operating system. The system's UEFI configuration was accessed and **Secure Boot was temporarily disabled**, allowing the system past the signature validation failure. This was a deliberate temporary recovery step, not a permanent change — the goal was to investigate the underlying BitLocker and Windows state, not leave Secure Boot off.
 
 ---
 
-## 🔐 Step 2 — Recover BitLocker Access
+### 🔐 Step 2 — Recover BitLocker Access
 
 The next obstacle was the BitLocker recovery screen. The Windows Recovery Environment was accessed through **Advanced Options → Command Prompt**, and the following command temporarily suspended the BitLocker protector on the OS volume, allowing the system to proceed through recovery rather than requiring the unavailable recovery key:
 
@@ -183,7 +190,7 @@ The BitLocker recovery key was ultimately retrieved through the Microsoft accoun
 
 ---
 
-# 🔧 Step 3 — Restore the Security Baseline
+### 🔧 Step 3 — Restore the Security Baseline
 
 Once Windows access was recovered, the objective shifted from **bypass** to **restoration** — Secure Boot should not remain disabled on a normal Windows 11 installation. The system was returned to UEFI configuration, and the Secure Boot keys were restored via **Secure Boot Configuration → Restore Factory Keys / Setup Defaults**. UEFI mode was confirmed, Legacy Support remained disabled, and Secure Boot was re-enabled:
 
@@ -201,7 +208,7 @@ UEFI
 
 ---
 
-## 💽 Step 4 — Verify BitLocker
+### 💽 Step 4 — Verify BitLocker
 
 After restoring the firmware configuration, BitLocker status was checked from Windows:
 
@@ -209,7 +216,9 @@ After restoring the firmware configuration, BitLocker status was checked from Wi
 Get-BitLockerVolume -MountPoint "C:"
 ```
 
-<a href="images/IMG_5690.JPEG"><img src="images/IMG_5690.JPEG" width="800" alt="Get-BitLockerVolume PowerShell output"></a>
+<div align="center">
+<img src="images/IMG_5690.JPEG" width="800">
+</div>
 
 *`Get-BitLockerVolume` output confirming the volume is FullyEncrypted with Tpm and RecoveryPassword key protectors, and Protection Status: On.*
 
@@ -223,7 +232,7 @@ The objective here wasn't just getting Windows to boot — it was confirming the
 
 ---
 
-# 🔍 Step 5 — Investigate the Actual Cause
+### 🔍 Step 5 — Investigate the Actual Cause
 
 The system was operational again, but that doesn't answer the real troubleshooting question:
 
@@ -238,21 +247,15 @@ Applications and Services Logs
         └── BitLocker-API Management
 ```
 
-### 📌 Event 898 — TPM Measurement Mismatch
+**Event 898 — TPM Measurement Mismatch.** The TPM detected a mismatch between its stored security measurements and the measurements produced by the current boot configuration — the TPM was seeing a boot environment different from the one it had previously trusted. This aligned directly with the Secure Boot violation: the evidence pointed to a changed boot environment, not a failed TPM.
 
-The TPM detected a mismatch between its stored security measurements and the measurements produced by the current boot configuration — the TPM was seeing a boot environment different from the one it had previously trusted. This aligned directly with the Secure Boot violation: the evidence pointed to a changed boot environment, not a failed TPM.
+**Event 4103 — TPM Key Request Denied.** Windows made a silent TPM request for the BitLocker encryption key, and it was denied — because the TPM couldn't validate the current boot measurements against the trusted state, it refused to release the key automatically. This is exactly why BitLocker transitioned into recovery mode: not a separate unexplained failure, but the expected security response to an untrusted boot state.
 
-### 📌 Event 4103 — TPM Key Request Denied
-
-Windows made a silent TPM request for the BitLocker encryption key, and it was denied — because the TPM couldn't validate the current boot measurements against the trusted state, it refused to release the key automatically. This is exactly why BitLocker transitioned into recovery mode: not a separate unexplained failure, but the expected security response to an untrusted boot state.
-
-### 📌 Event 793 — TPM Resealed Successfully
-
-BitLocker successfully resealed the volume to the TPM using the new boot measurements — confirming the TPM could establish a new trusted state once the boot configuration was restored.
+**Event 793 — TPM Resealed Successfully.** BitLocker successfully resealed the volume to the TPM using the new boot measurements — confirming the TPM could establish a new trusted state once the boot configuration was restored.
 
 ---
 
-# 🧩 Root Cause Analysis
+## 🧩 Root Cause Analysis
 
 The evidence supported a very different conclusion from the initial hardware-failure hypothesis:
 
@@ -272,11 +275,11 @@ There was also a complicating factor during the same recovery window: a **displa
 
 ---
 
-# 🔌 Step 6 — Investigate the USB POST Loop
+## 🔌 Step 6 — Investigate the USB POST Loop
 
 With BitLocker/Secure Boot resolved, the intermittent POST loop from the Bluetooth dongle remained. The first question was whether the system was simply trying to boot from the USB device — but the internal Windows Boot Manager was already prioritized ahead of USB devices, so simple boot-order misconfiguration didn't explain it.
 
-## 🔬 USB Enumeration Hypothesis
+### 🔬 USB Enumeration Hypothesis
 
 The investigation shifted to **USB device enumeration during POST** — the OMEN firmware initializes connected USB hardware before handing off to Windows, and the headset's dongle appeared to cause the firmware to hang while enumerating it. This explained why the system booted fine without the dongle, why the problem occurred before Windows loaded, why reordering boot devices didn't help, and why the same peripheral worked fine once plugged in after Windows had already started.
 
@@ -284,17 +287,19 @@ The OMEN firmware didn't expose a traditional "USB Legacy Support" toggle — th
 
 ### 📷 OMEN Firmware Evidence
 
-<a href="images/IMG_5687.JPEG"><img src="images/IMG_5687.JPEG" width="800" alt="OMEN Setup Utility system log"></a>
+<div align="center">
+<img src="images/IMG_5687.JPEG" width="800">
+</div>
 
 *OMEN Setup Utility system log showing firmware-level startup information, reviewed during the POST-loop investigation.*
 
-## ✅ Step 7 — Verify the USB Fix
+### ✅ Step 7 — Verify the USB Fix
 
 The system was allowed to boot normally, and USB devices were reintroduced individually — the Bluetooth dongle connected fine once Windows had already loaded, confirming the problem was specific to **early USB enumeration during POST**, not a general USB or Windows fault. This secondary issue was treated as fully separate from the BitLocker/Secure Boot incident.
 
 ---
 
-# 🔄 Recovery Verification
+## 🔄 Recovery Verification
 
 **Security:** Secure Boot re-enabled, UEFI mode confirmed, TPM functioning normally, BitLocker fully encrypted and resealed to current measurements, Windows booting normally.
 
@@ -302,7 +307,7 @@ The system was allowed to boot normally, and USB devices were reintroduced indiv
 
 ---
 
-# 🔁 Recurrence — Second Occurrence
+## 🔁 Recurrence — Second Occurrence
 
 About two weeks after the initial recovery, the same failure pattern recurred following another firmware/OS update — a Secure Boot violation followed by a BitLocker recovery prompt. This was treated as a chance to test the root-cause model rather than a new mystery: the same steps (restore Secure Boot config, check BitLocker status, review the same 898 → 4103 → 793 event sequence) resolved it the same way.
 
@@ -310,7 +315,7 @@ The recurrence reinforced the original conclusion rather than undermining it —
 
 ---
 
-# 🛡️ Lessons Learned
+## 🛡️ Lessons Learned
 
 **1. Suspend BitLocker before firmware changes.** `Suspend-BitLocker -MountPoint "C:" -RebootCount 1` before a BIOS/firmware update prevents a predictable change from unexpectedly triggering recovery.
 
@@ -334,7 +339,7 @@ A Secure Boot change can indirectly trigger BitLocker recovery once the TPM's me
 
 ---
 
-# 💻 Command Reference
+## 💻 Command Reference
 
 ```powershell
 # Rule out file corruption
@@ -363,7 +368,7 @@ Suspend-BitLocker -MountPoint "C:" -RebootCount 1
 
 ---
 
-# 📊 Key Takeaways
+## 📊 Key Takeaways
 
 | Finding                 | Result                                                                        |
 | ----------------------- | ------------------------------------------------------------------------------ |
@@ -379,13 +384,15 @@ Suspend-BitLocker -MountPoint "C:" -RebootCount 1
 
 ---
 
-# 🔎 Known Follow-Up Item — Frequent PIN Resets
+## 🔎 Known Follow-Up Item — Frequent PIN Resets
 
-Since the recovery, the affected Windows Hello PIN has needed to be reset more often than before the incident. A likely (but unconfirmed) explanation is that repeated TPM reseal events and Secure Boot state changes also affect Windows Hello's TPM-bound credential storage, separately from BitLocker's own key protection. This hasn't been root-caused with the same rigor as the primary incident and is being tracked as an open item, not treated as resolved.
+Since the recovery, the affected Windows Hello PIN has needed to be reset more often than before the incident — three times as of this writing. A likely explanation: this system uses AMD's firmware-based **fTPM** rather than a discrete TPM chip, and a BIOS/firmware update can sometimes reset the fTPM's stored state as a side effect of flashing new firmware. If that's happening here, it would explain both symptoms as one event rather than two — BitLocker recovery because its key seal is invalidated, and the PIN reset because Windows Hello's credential is *also* TPM-bound, independent of BitLocker.
+
+This hasn't been confirmed with the same rigor as the primary incident yet, and is being tracked as an open item.
 
 ---
 
-# 💡 Skills Demonstrated
+## 💡 Skills Demonstrated
 
 Windows 11 troubleshooting • UEFI firmware configuration • Secure Boot troubleshooting • TPM 2.0 analysis • BitLocker recovery & command-line administration • PowerShell • Windows Recovery Environment • Windows Event Viewer & event correlation • Root cause analysis • POST/USB enumeration troubleshooting • Evidence-based troubleshooting • Security configuration validation • Preventative maintenance planning
 
@@ -398,3 +405,13 @@ This recovery is a good example of why complex boot failures deserve an **eviden
 The USB POST loop turned out to be a separate, firmware-level enumeration issue, resolved by disabling USB Boot. The same root cause resurfaced once more two weeks later after another firmware update, resolving via the identical diagnostic path — and one residual symptom (frequent PIN resets) remains open rather than fully closed.
 
 **The key lesson:** don't replace hardware just because the symptoms look like hardware failure. Establish the timeline, collect the evidence, correlate the events, and let the system tell you what actually happened.
+
+---
+
+<div align="center">
+
+## 👤 Shannon Smith
+
+Cybersecurity | SOC Operations • Detection Engineering • Incident Response
+
+</div>
